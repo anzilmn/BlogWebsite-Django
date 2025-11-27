@@ -1,0 +1,245 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Your Profile | Blog</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="icon" href="{% static 'images/icons/blog-logo.svg' %}" sizes="32x32" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+
+    <style>
+body {
+    font-family: 'Inter', sans-serif;
+    background-image: url('https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=1350&q=80'); /* Or your own image URL */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 30px;
+}
+
+.profile-container {
+    max-width: 650px;
+    margin: auto;
+    padding: 30px;
+    border: none;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+}
+
+.profile-container:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.profile-container h2 {
+    text-align: center;
+    font-size: 30px;
+    color: #333;
+    margin-bottom: 25px;
+}
+
+.profile-pic {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.profile-pic img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #007bff;
+    padding: 4px;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.profile-pic img:hover {
+    transform: scale(1.05);
+}
+
+.info-stats {
+    text-align: center;
+    margin: 10px 0 20px;
+    font-size: 14px;
+    color: #555;
+}
+
+.info-stats span {
+    margin: 0 20px;
+    font-weight: 500;
+}
+
+.form-field {
+    margin-bottom: 20px;
+}
+
+.form-field label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 6px;
+    color: #222;
+}
+
+.form-field input,
+.form-field textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    outline: none;
+    background-color: #fdfdfd;
+    transition: border 0.3s ease;
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+    border-color: #007bff;
+}
+
+.submit-btn {
+    background-color: #28a745;
+    color: white;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: background 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #218838;
+}
+
+
+    </style>
+</head>
+
+<body>
+    <!-- Blog Header -->
+    <section id="home">
+        <section class="wrapper">
+            <header>
+                <h1>
+                    <a href="{% url 'web:index' %}">
+                        <img src="{% static 'images/icons/blog-logo.svg' %}" alt="Logo" />
+                    </a>
+                </h1>
+                <div>
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.is_superuser %}
+                            <span style="color: black; font-weight: bold; margin-right: 10px;">
+                                Welcome, {{ request.user.username }} ({{ request.user.email }}) 👑
+                            </span>
+                            <a href="{% url 'users:logout' %}" class="login" style="background-color: red; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold;">
+                                Logout
+                            </a>
+                        {% else %}
+                            <span style="color: black; font-weight: bold; margin-right: 10px;">
+                                Welcome, {{ request.user.username }} ❤️
+                            </span>
+                            <a href="{% url 'posts:create_post' %}" class="login my-posts">Create</a>
+                            <a href="{% url 'posts:my_posts' %}" class="login my-posts">My Posts</a>
+                            <a href="{% url 'users:logout' %}" class="login" style="background-color: red; color: white">Logout</a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'users:sign_log' %}" class="login">Login</a>
+                    {% endif %}
+                </div>
+            </header>
+        </section>
+    </section>
+
+    <!-- Profile Form -->
+   <div class="profile-container">
+    <h2>Your Profile ❤️</h2>
+
+
+
+ 
+
+<div class="profile-pic" style="text-align:center; margin-bottom: 20px;">
+    {% if profile.profile_pic %}
+        <img src="{{ profile.profile_pic.url }}" alt="Profile Picture"
+             style="width: 120px; height: 120px; border-radius: 40%; object-fit: cover; border: 3px solid #0d6efd;">
+    {% else %}
+        <img src="{% static 'images/profile.png' %}" alt="Default Profile Picture"
+             style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #ccc;">
+    {% endif %}
+</div>
+
+
+
+
+    <!-- Form with profile pic upload -->
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-field">
+            <label for="profile_pic">Change Profile Picture</label>
+            <input type="file" name="profile_pic" id="profile_pic">
+        </div>
+
+        <div class="info-stats">
+            <span><strong>Joined:</strong> {{ user.date_joined|date:"F j, Y" }}</span>
+            <span><strong>Posts:</strong> {{ post_count }}</span>
+        </div>
+
+        <div class="form-field">
+            <label for="username">Username</label>
+            <input type="text" id="username" value="{{ user.username }}" readonly>
+        </div>
+
+        <div class="form-field">
+            <label for="email">Email</label>
+            <input type="email" id="email" value="{{ user.email }}" readonly>
+        </div>
+
+        <div class="form-field">
+            <label for="bio">Bio</label>
+            <textarea id="bio" name="bio">{{ profile.bio }}</textarea>
+        </div>
+
+        <div class="form-field">
+            <label for="location">Location</label>
+            <input type="text" name="location" value="{{ profile.location }}">
+        </div>
+
+        <div class="form-field">
+            <label for="website">Website</label>
+            <input type="url" name="website" value="{{ profile.website }}">
+        </div>
+
+        <div class="form-field">
+            <label for="twitter">Twitter</label>
+            <input type="text" name="twitter" value="{{ profile.twitter }}">
+        </div>
+
+        <div class="form-field">
+            <label for="linkedin">LinkedIn</label>
+            <input type="url" name="linkedin" value="{{ profile.linkedin }}">
+        </div>
+
+        <button type="submit" class="submit-btn">Update Profile</button>
+    </form>
+</div>
+
+</body>
+</html>

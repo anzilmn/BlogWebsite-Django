@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <meta charset="UTF-8" />
+    <title>Edit Reported Comments | Admin Panel</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}" />
+    <link rel="icon" type="image/png" href="{% static 'images/icons/blog-logo.svg' %}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            max-width: 700px;
+            margin: auto;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 15px;
+            display: block;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-save {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-cancel {
+            background-color: #999;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            line-height: 34px;
+        }
+    </style>
+</head>
+<body>
+
+     <header>
+            <h1>
+                <a href="{% url 'web:index' %}">
+                    <img src="{% static 'images/icons/blog-logo.svg' %}" alt="Logo" />
+                </a>
+            </h1>
+            <div>
+                {% if request.user.is_authenticated and request.user.is_superuser %}
+                    <span style="color: black; font-weight: bold; margin-right: 10px;">
+                        Welcome, {{ request.user.username }} ({{ request.user.email }}) 👑
+                    </span>
+                    <a href="{% url 'users:users_list' %}" class="login" style="background-color: #6CBF7D; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold; margin-right: 10px;">Users</a>
+
+                    <a href="{% url 'users:logout' %}" class="login" style="background-color: red; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold;">Logout</a>
+                {% endif %}
+            </div>
+        </header>
+
+    <h2>Edit Reported Message</h2>
+
+    <br>    <br>
+    <form method="POST">
+        {% csrf_token %}
+
+        <label>User:</label>
+        <input type="text" value="{{ report.user.username }}" disabled />
+
+        <label>Comment:</label>
+        <textarea disabled>{{ report.comment.content|default:"(Deleted)" }}</textarea>
+
+        <label>Post:</label>
+        <input type="text" value="{% if report.comment and report.comment.post %}{{ report.comment.post.title }}{% else %}(Deleted){% endif %}" disabled />
+
+        <label>Report Message:</label>
+        <textarea disabled>{{ report.message }}</textarea>
+
+        <label for="admin_reply">Admin Reply:</label>
+        <textarea name="admin_reply" rows="5">{{ report.admin_reply }}</textarea>
+
+        <label>
+            <input type="checkbox" name="is_admin_replied" {% if report.is_admin_replied %}checked{% endif %} />
+            Mark as replied
+        </label>
+
+        <div class="button-group">
+            <button type="submit" class="btn btn-save">💬 Save Reply</button>
+            <a href="{% url 'web:admin_reports' %}" class="btn btn-cancel">❌ Cancel</a>
+        </div>
+    </form>
+
+</body>
+</html>

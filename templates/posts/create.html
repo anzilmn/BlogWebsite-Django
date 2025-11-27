@@ -1,0 +1,265 @@
+    {% load static %}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Blog Post | Create your blog</title>
+        <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css" />
+        <link rel="stylesheet" href="{% static 'css/ck-editor.css' %}" type="text/css" />
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/icons/blog-logo.svg' %}" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta property="og:image" content="" />
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+    <!-- Load jQuery from a CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'js/ckeditor.js' %}"></script>
+    <script>
+        document.querySelector("form.ajaxx").addEventListener("submit", function(event) {
+            alert("Your post has been submitted successfully!");
+        });
+    </script>
+    
+    <style>
+        /* Logo hover animation (already done) */
+        header h1 a img {
+            transition: transform 0.3s ease-in-out;
+        }
+    
+        header h1 a:hover img {
+            transform: scale(1.1) rotate(-2deg);
+        }
+    
+        /* Hover transition for all important buttons & links */
+        a.login,
+        a.my-posts,
+        a.danger,
+        a.warning,
+        a.success,
+        a.view,
+        .pagination a,
+        .pagination .next,
+        .pagination .prev,
+        input[type="submit"],
+        button {
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+    
+        /* Hover effect (scale up + slightly dim) */
+        a.login:hover,
+        a.my-posts:hover,
+        a.danger:hover,
+        a.warning:hover,
+        a.success:hover,
+        a.view:hover,
+        .pagination a:hover,
+        .pagination .next:hover,
+        .pagination .prev:hover,
+        input[type="submit"]:hover,
+        button:hover {
+            transform: scale(1.05);
+           
+          
+        }
+    </style>
+    
+    </head>
+    <body> 
+        <section id="edit-post-home">
+            <section class="wrapper">   
+                <header>
+                    <h1>
+                        <a href="{% url 'web:index' %}">
+                            <img src="{% static 'images/icons/blog-logo.svg' %}" alt="Logo" />
+                        </a>
+                    </h1>
+                    <div>
+                        {% if request.user.is_authenticated %}
+                            {% if request.user.is_superuser %}
+                                <span style="color: black; font-weight: bold; margin-right: 10px;">
+                                    Welcome, {{ request.user.username }} ({{ request.user.email }}) 👑
+                                </span>
+                                <a href="{% url 'users:logout' %}" class="login"  style="background-color: red; color: white">Logout</a>
+                            {% else %}
+                                <span style="color: black; font-weight: bold; margin-right: 10px;">
+                                    Welcome, {{ request.user.username }}❤️
+                                </span>
+                               
+                                <a href="{% url 'posts:my_posts' %}" class="login my-posts">My Posts</a>
+                                <a href="{% url 'users:logout' %}" class="login"  style="background-color: red; color: white">Logout</a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'users:sign_log' %}" class="login">Login</a>
+                        {% endif %}
+                    </div>
+                     <!-- FIXED: Properly closed this div -->
+                    <div id="hamburger-icon">
+                        <img src="{% static 'images/icons/hamburger.svg' %}" alt="Hamburger" />
+                    </div>
+                </header>
+
+                <section class="spotlight">
+                    <h3>Let's Start</h3>
+                    <form action="" method="post" enctype="multipart/form-data" class="ajaxx">
+                        {% csrf_token %}
+
+                        <div class="form-field">
+                            <label for="{{ form.title.id_for_label }}" class="subheads">
+                                {{ form.title.label }}
+                            </label>
+                            {{ form.title }}
+                        </div>
+
+                        <div class="form-field">  
+                            <label class="subheads" for="{{ form.description.id_for_label }}">
+                                {{ form.description.label }}
+                            </label>
+                            <div class="description editor"> <!-- FIXED: Wrapped in .editor class for CKEditor -->
+                                {{ form.description }}
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label class="subheads" for="{{ form.short_description.id_for_label }}">
+                                {{ form.short_description.label }}
+                            </label>
+                            {{ form.short_description }}
+                        </div>
+
+                        <div class="form-field">
+                            <label class="subheads" for="{{ form.tags.id_for_label }}"> <!-- Changed `tag` to `tags` -->
+                                {{ form.tags.label }}
+                            </label>
+                            {{ form.tags }}
+                        </div>
+                        
+
+                        <div class="form-field">
+                            <label for="{{ form.time_to_read.id_for_label }}" class="subheads">
+                                {{ form.time_to_read.label }}
+                            </label>
+                            {{ form.time_to_read }}
+                        </div>
+
+                        <div class="form-field">
+                            <label for="{{ form.featured_image.id_for_label }}" class="subheads">
+                                {{ form.featured_image.label }}
+                            </label>
+                            
+                            <!-- Display existing image -->
+                            {% if form.instance.featured_image %}
+                                <p>Current Image:</p>
+                                <img src="{{ form.instance.featured_image.url }}" alt="Current Image" 
+                                     style="max-width: 200px; max-height: 200px; display: block; margin-bottom: 10px;">
+                            {% endif %}
+                            
+                            <!-- File input for new upload -->
+                            {{ form.featured_image }}
+                        </div>
+                        
+
+                        <div class="form-field">
+                            <label class="checkbox">
+                                {{ form.is_draft }}
+                                {{ form.is_draft.label }}
+                            </label>
+                        </div>
+
+                        <div class="form-field">
+                            <input type="submit" value="Submit"  />
+                        </div>
+                    </form>
+                    {{form.media}}
+                </section>
+            </section>
+        </section>
+
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                let params = new URLSearchParams(window.location.search);
+                let isEditPage = window.location.pathname.includes("edit");  // ✅ Check if it's an edit page
+        
+                // ✅ Show success message only for editing
+                if (params.has("edited") && isEditPage) {
+                    Swal.fire({
+                        title: "Updated!",
+                        text: "✅ Post successfully edited!",
+                        icon: "success",
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+        
+                    // ✅ Remove "edited" from the URL after showing the message
+                    window.history.replaceState({}, document.title, window.location.pathname + window.location.search.replace("&edited=true", ""));
+                }
+        
+                // ✅ Handle form submission (Create + Edit)
+                let submitButton = document.querySelector("input[type='submit']");
+                if (submitButton) {
+                    submitButton.addEventListener("click", function (event) {
+                        event.preventDefault(); // Stop form from submitting immediately
+        
+                        // ✅ Check for empty required fields
+                        let requiredFields = document.querySelectorAll("input[required], textarea[required], select[required]");
+                        let emptyFields = [];
+        
+                        requiredFields.forEach(field => {
+                            if (!field.value.trim()) {
+                                emptyFields.push(field);
+                            }
+                        });
+        
+                        // ✅ If required fields are empty, show error
+                        if (emptyFields.length > 0) {
+                            Swal.fire({
+                                title: "Oops!",
+                                text: "Please fill out all required fields before submitting.",
+                                icon: "error",
+                                confirmButtonText: "OK"
+                            });
+                            return;
+                        }
+        
+                        // ✅ Check if it's an edit or create post action
+                        let confirmText = isEditPage ? "Do you want to update this post?" : "Do you want to submit your post?";
+                        let successText = isEditPage ? "Your post has been updated!" : "Your post has been created!";
+        
+                        // ✅ Confirmation alert
+                        Swal.fire({
+                            title: "Are you sure?",
+                            text: confirmText,
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Yes, submit it!",
+                            cancelButtonText: "No, cancel"
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                Swal.fire({
+                                    title: isEditPage ? "Updating..." : "Submitting...",
+                                    text: successText,
+                                    icon: "success",
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+        
+                                // ✅ Delay form submission
+                                setTimeout(() => {
+                                    document.querySelector("form").submit();
+                                }, 2000);
+                            }
+                        });
+                    });
+                }
+            });
+        </script>
+        
+        
+        
+
+       
+    </body>
+    </html>

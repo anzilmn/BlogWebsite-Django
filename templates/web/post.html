@@ -1,0 +1,524 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Blog Post | Create your blog</title>
+        <link
+            rel="stylesheet"
+            href="{% static 'css/style.css' %}"
+            type="text/css"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="{% static 'images/icons/blog-logo.svg' %}"
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta property="og:image" content="" />
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+        <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+        
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="{% static 'js/script.js' %}"></script>
+        <style>
+            header h1 a img {
+                transition: transform 0.3s ease-in-out;
+            }
+            
+            header h1 a:hover img {
+                transform: scale(1.1) rotate(-2deg);
+            }
+            
+            
+            /* Button Styling with Transition Animation */
+a.login,
+a.my-posts,
+#hamburger-icon img,
+.social-media a img,
+.copy-link {
+    transition: all 0.3s ease-in-out;
+}
+
+a.login:hover,
+a.my-posts:hover {
+    transform: scale(1.1);
+   
+}
+
+#hamburger-icon img:hover {
+    transform: rotate(90deg) scale(1.2);
+}
+
+.social-media a img:hover {
+    transform: scale(1.2);
+    opacity: 0.8;
+}
+
+.copy-link:hover {
+    transform: translateY(-2px);
+    color: #3085d6;
+}
+
+/* General comment section styling */
+.comment-section {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.comment-section h4 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    color: #333;
+}
+
+.comment-section #commentList {
+    list-style-type: none;
+    padding: 0;
+}
+
+.comment-section #commentList li {
+    background-color: #fff;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+ 
+.comment-section #commentList li strong {
+    font-size: 16px;
+    font-weight: bold;
+    color: #444;
+}
+
+.comment-section #commentList li small {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    margin-top: 5px;
+}
+
+.comment-section #commentList li {
+    position: relative; /* Needed to position the delete button inside the list item */
+    background-color: #fff;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.comment-section .delete-comment-btn {
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+   
+    position: absolute; /* Positioning it at the top-right */
+    top: 10px; /* Distance from the top */
+    right: 10px; /* Distance from the right */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Added transition for transform */
+}
+
+.comment-section .delete-comment-btn:hover {
+   
+    transform: scale(1.1); /* Slight scale up effect on hover */
+}
+
+ 
+
+/* Add comment form styling */
+#commentForm {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+#commentForm textarea {
+    resize: vertical;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-family: Arial, sans-serif;
+    min-height: 100px;
+}
+
+#commentForm button {
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#commentForm button:hover {
+    background-color: #2980b9;
+}
+
+#commentForm textarea:focus, 
+#commentForm button:focus {
+    outline: none;
+}
+
+#commentForm textarea::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+.report-comment-btn{
+    
+    border: none;
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+   
+    position: absolute; /* Positioning it at the top-right */
+    top: 10px; /* Distance from the top */
+    right: 10px; /* Distance from the right */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Added transition for transform */
+}
+
+.report-comment-btn{
+    
+    transform: scale(1.1);
+ }
+
+            
+        </style>
+        
+    </head>
+    <body>
+        
+    <section id="single-page-home">
+        <section class="wrapper">     
+            
+            
+            
+            <header>
+                <h1>
+                    <a href="{% url 'web:index' %}">
+                        <img
+                            src="{% static 'images/icons/blog-logo.svg' %}"
+                            alt="Logo"
+                        />
+                    </a>
+                </h1>
+                <div>
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.is_superuser %}
+                            <span style="color: black; font-weight: bold; margin-right: 10px;">
+                                Welcome, {{ request.user.username }} ({{ request.user.email }}) 👑
+                            </span>
+                            <a href="{% url 'users:logout' %}" class="login"  style="background-color: red; color: white">Logout</a>
+                        {% else %}
+                            <span style="color: black; font-weight: bold; margin-right: 10px;">
+                                Welcome, {{ request.user.username }}❤️
+                            </span>
+                            <a href="{% url 'posts:create_post' %}" class="login my-posts">Create</a>
+                            <a href="{% url 'posts:my_posts' %}" class="login my-posts">My Posts</a>
+                            <a href="{% url 'web:my_reports' %}" class="login my-posts">📬 My Reports</a>
+                            <a href="{% url 'users:logout' %}" class="login"  style="background-color: red; color: white">Logout</a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'users:sign_log' %}" class="login">Login</a>
+                    {% endif %}
+                </div>
+                
+                
+                
+                
+                
+             
+                
+                <div id="hamburger-icon">
+                    <img
+                        src="{% static 'images/icons/hamburger.svg' %}"
+                        alt="Hamburger"
+                    />
+                </div>
+            </header>
+
+
+
+            <section class="single-page-spotlight">
+                <div class="blog-category">
+                    
+                    {% for category in instance.categories.all %}
+
+                    <span class="category">
+                        {{category.title}}
+                    </span>
+                    {% endfor %}
+                    
+                    
+                    <span class="read">
+                        <span class="clock">
+                            <img src="{% static 'images/icons/clock.svg' %}" alt="Clock" />
+                        </span>
+                       {{instance.time_to_read}}
+                    </span>
+                </div>
+                <h3 class="title">
+                    {{instance.title}}
+                </h3>
+                <p class="description">
+                    {{instance.short_description}}
+                </p>
+                <div class="post-thumbnail">
+                    <img src="{{instance.featured_image.url}}" alt="Post-thumbnail" >
+                </div>
+                <div class="details">
+                    <span class="published">
+                        <p class="written">
+                            Written by
+                        </p>
+                        <p class="name">
+                            {{instance.author.name}}
+                        </p>
+                    </span>
+                    <span class="published">
+                        <p class="written">
+                            Published on
+                        </p>
+                        <p class="name">
+                            {{instance.published_date}}
+                        </p>
+                    </span>
+                    <ul class="social">
+                        <li>
+                            <a href="#" class="copy-link">
+                                <span class="link">
+                                    <img src="{% static 'images/icons/copy-link.svg' %}" alt="Copy-link" />
+                                </span>
+                                Copy link
+                            </a>
+                        </li>
+                        
+                        
+                        <li class="social-media">
+                            <a target="_blank" href="https://twitter.com/intent/tweet?text={{ request.build_absolute_uri }}">
+                                <img src="{% static 'images/icons/twitter.svg' %}" alt="Twitter" />
+                            </a>
+                        </li>
+                        
+                        <li class="social-media">
+                            <a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}">
+                                <img src="{% static 'images/icons/facebook.svg' %}" alt="Facebook" />
+                            </a>
+                        </li>
+                        
+                        <li class="social-media">
+                            <a target="_blank" href="https://api.whatsapp.com/send?text={{ request.build_absolute_uri }}">
+                                <img src="{% static 'images/icons/whatsapp.svg' %}" alt="Linked-in" />
+                            </a>
+                        </li>
+                        
+                    </ul>
+                </div>
+                <p class="detailed-description">
+                    {{ instance.description|safe }}
+                </p>
+
+             <br>
+             
+             
+
+
+
+            <h3 style="border-bottom: 2px solid black;">Comment section</h3>
+
+{% if request.user.is_authenticated and request.user != instance.author.user %}
+    <form method="POST" id="commentForm">
+        {% csrf_token %}
+        <textarea name="comment" rows="10" placeholder="Leave a comment..." required></textarea>
+        <button type="submit" id="submitCommentBtn">Post Comment</button>
+    </form>
+{% endif %}
+
+<div class="comment-section">
+    <h4>Comments ({{ comments.count }})</h4>
+    <ul id="commentList">
+        {% for comment in comments %}
+            <li id="comment-{{ comment.id }}">
+                <strong>{{ comment.user.username }}</strong>: {{ comment.content }}
+                <small>{{ comment.created_at }}</small>
+
+                {% if request.user == comment.user or request.user.is_superuser %}
+                    <!-- Only the comment owner or admin can delete -->
+                    <button class="delete-comment-btn" data-comment-id="{{ comment.id }}" style="margin-left: 10px;">🗑️</button>
+                {% endif %}
+
+                {% if request.user == instance.author.user %}
+                <!-- Report button for post owner -->
+                <a href="{% url 'web:report_comment' comment.id %}" class="report-comment-btn" style="margin-left: 10px;">Report Comment</a>
+            {% endif %}
+
+
+            </li>
+        {% empty %}
+             
+        {% endfor %}
+    </ul>
+</div>
+
+             
+                
+
+
+
+                </section>
+        </section>
+    </section>
+   <!-- Include SweetAlert2 Library -->
+  
+
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   <script>
+   // Handle comment submission (add comment)
+document.getElementById('commentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const commentText = document.querySelector('textarea[name="comment"]').value;
+    const postId = {{ instance.id }};  // Pass the current post ID
+
+    const formData = new FormData();
+    formData.append('comment', commentText);
+    formData.append('post_id', postId);
+    
+    fetch("{% url 'web:add_ajax_comment' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const commentList = document.getElementById('commentList');
+            const newCommentHTML = `
+                <li id="comment-${data.comment_id}">
+                    <strong>${data.username}</strong>: ${data.comment_text}
+                    <small>${data.created_at}</small>
+                    <button class="delete-comment-btn" data-comment-id="${data.comment_id}" style="margin-left: 10px;">🗑️</button>
+                </li>
+            `;
+            commentList.insertAdjacentHTML('beforeend', newCommentHTML);
+
+            // Update the comment count
+            const commentCount = document.querySelector('.comment-section h4');
+            const currentCount = parseInt(commentCount.textContent.match(/\d+/)[0]);
+            commentCount.textContent = `Comments (${currentCount + 1})`;
+
+            document.getElementById('commentForm').reset(); // Clear form
+        } else {
+            console.error('Failed to add comment');
+        }
+    });
+});
+
+// Handle comment deletion (delete comment) without confirmation alert
+// Handle comment deletion (delete comment)
+document.getElementById('commentList').addEventListener('click', function(e) {
+    if (e.target.classList.contains('delete-comment-btn')) {
+        const commentId = e.target.getAttribute('data-comment-id');
+
+        // Send a POST request to the server to delete the comment
+        fetch(`/delete_comment/${commentId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())  // Expect a JSON response with success
+        .then(data => {
+            if (data.success) {
+                // Remove the deleted comment from the DOM
+                const commentElement = document.getElementById('comment-' + commentId);
+                commentElement.remove();
+
+                // Update the comment count
+                const commentCount = document.querySelector('.comment-section h4');
+                const currentCount = parseInt(commentCount.textContent.match(/\d+/)[0]);
+                commentCount.textContent = `Comments (${currentCount - 1})`;
+            } else {
+                console.error('Failed to delete comment');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting comment:', error);
+        });
+    }
+});
+
+</script>
+
+   
+
+
+
+   
+    
+
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelector(".copy-link").addEventListener("click", function (event) {
+            event.preventDefault(); // Prevent default link behavior
+    
+            // Get the current URL
+            let url = window.location.href; 
+    
+            // Ensure the document is focused before copying
+            if (!document.hasFocus()) {
+                console.warn("Document is not focused. Clipboard action prevented.");
+                return;
+            }
+    
+            // Copy the URL to the clipboard
+            navigator.clipboard.writeText(url).then(() => {
+                Swal.fire({
+                    icon: "success",
+                    title: "Copied!",
+                    text: "The link has been copied to your clipboard.",
+                    confirmButtonColor: "#3085d6",
+                    confirmButtonText: "OK"
+                });
+            }).catch(err => {
+                console.error("Copy failed:", err);
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Failed to copy the link. Try again!",
+                    confirmButtonColor: "#d33",
+                    confirmButtonText: "OK"
+                });
+            });
+        });
+    });
+    
+    
+</script>
+
+
+
+    </body>
+</html>

@@ -1,0 +1,525 @@
+{% load static %}
+{% load paginator_tags %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Blog Post | Create your blog</title>
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="{% static 'css/style.css' %}" 
+            />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="{% static 'images/icons/blog-logo.svg' %}" 
+            />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta property="og:image" content="" />
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+        <script src=" {% static 'js/jquery-3.6.0.min.js' %}"></script>
+        <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="{% static 'js/script.js' %} "></script>
+        <style>
+            header h1 a img {
+                transition: transform 0.3s ease-in-out;
+            }
+            
+            header h1 a:hover img {
+                transform: scale(1.1) rotate(-2deg);
+            }
+            
+            
+            /* General Button Styling */
+            button, 
+            a.login, 
+            a.my-posts, 
+            input[type="submit"] {
+                transition: all 0.3s ease-in-out;
+                transform: scale(1);
+                display: inline-block;
+                cursor: pointer;
+            }
+            
+            /* Hover Effect (no box-shadow) */
+            button:hover, 
+            a.login:hover, 
+            a.my-posts:hover, 
+            input[type="submit"]:hover {
+                transform: scale(1.05); /* Slightly enlarges button */
+                filter: brightness(1.1);
+            }
+            
+            /* Click Animation */
+            button:active, 
+            a.login:active, 
+            a.my-posts:active, 
+            input[type="submit"]:active {
+                transform: scale(0.95); /* Slightly shrinks on click */
+            }
+            
+            /* Specific Styling for Logout Button */
+            a.login[style*="background-color: red"] {
+                transition: all 0.3s ease-in-out;
+            }
+            
+            a.login[style*="background-color: red"]:hover {
+                background-color: darkred;
+            }
+            
+            /* Specific Styling for 'Users' Button */
+            a.login[style*="background-color: #6CBF7D"] {
+                transition: all 0.3s ease-in-out;
+            }
+            
+            a.login[style*="background-color: #6CBF7D"]:hover {
+                background-color: #5AA769;
+            }
+            
+.pagination a,
+.pagination .prev,
+.pagination .next {
+    transition: all 0.3s ease;
+    cursor: pointer;
+} 
+
+.pagination a:hover,
+.pagination .prev:hover,
+.pagination .next:hover {
+    
+     
+    transform: scale(1.05);
+}
+
+
+/* Pagination Transition Styling */
+.pages a, .pages span.active {
+    transition: all 0.3s ease-in-out;
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.pages a:hover {
+    background-color: #3085d6;
+    color: white;
+    transform: scale(1.1);
+}
+
+.pages span.active {
+    background-color: #d33;
+    color: white;
+    transform: scale(1.1);
+}
+
+
+
+.posts li {
+    transition: all 0.3s ease-in-out; /* Smooth transition */
+}
+
+/* Hover Effect */
+.posts li:hover {
+    background-color: rgba(255, 255, 255, 0.9); /* Optional light effect */
+}
+
+/* Image Transition */
+.posts li .blog-image img {
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Slight zoom on image hover */
+.posts li:hover .blog-image img {
+    transform: scale(1.02);
+}
+.notification-wrapper {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+}
+
+.notification-bell {
+    position: absolute;
+    top: -15px;
+    left: 8%;
+    transform: translateX(-50%);
+    width: 46px;
+    height: 32px;
+    animation: ring 1s infinite ease-in-out;
+    z-index: 2; /* Make sure this is higher than the button's z-index */
+}
+
+button {
+    position: relative; /* Make sure the button has a positioning context */
+    z-index: 1; /* Lower than the bell icon */
+}
+
+
+.notification-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 25px;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Optional bell animation */
+
+@keyframes ring {
+    0% { transform: translateX(-50%) rotate(0deg); }
+    25% { transform: translateX(-50%) rotate(10deg); }
+    50% { transform: translateX(-50%) rotate(0deg); }
+    75% { transform: translateX(-50%) rotate(-10deg); }
+    100% { transform: translateX(-50%) rotate(0deg); }
+}
+
+
+
+
+
+        </style>
+        
+    </head>
+    <body>
+    <section id="home">
+        <section class="wrapper">
+            <header>
+                <h1>
+                    <a href="{% url 'web:index' %}">
+                        <img
+                            src="{% static 'images/icons/blog-logo.svg' %}"
+                            alt="Logo"
+                        />
+                    </a>
+                </h1>
+                <div>
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.is_superuser %}
+                            <span style="color: black; font-weight: bold; margin-right: 10px;">
+                                Welcome, {{ request.user.username }} ({{ request.user.email }}) 👑
+                            </span>
+                            <a href="{% url 'users:users_list' %}" class="login" style="background-color: #6CBF7D; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold; margin-right: 10px;">
+                                Users
+                            </a>
+                            
+                             <div class="notification-wrapper">
+    {% if report_bell_alert %}
+        <img src="{% static 'images/noti.png' %}" alt="Notification Bell" class="notification-bell" />
+    {% endif %}
+
+    <a href="{% url 'web:admin_reports' %}" class="login my-posts notification-button">
+        {% if report_bell_alert %}
+            New Reports
+        {% else %}
+            New Reports 📩
+        {% endif %}
+    </a>
+    <a href="{% url 'posts:manage_suspensions' %}" class="login my-posts notification-button" style="background-color: crimson;">
+    🔒 Manage Suspensions
+</a>
+
+</div>
+
+                            
+
+                            <a href="{% url 'users:logout' %}" class="login" style="background-color: red; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold;">
+                                Logout
+                            </a>
+                            
+                        {% else %}
+                            <span style="color: black; font-weight: bold; margin-right: 10px;">
+                                Welcome,  <a href="{% url 'posts:profile' %}" style="color: green; font-weight: bold; text-decoration: none;" title="Your Profile">
+    {{ request.user.username }}❤️
+</a>
+
+({{ request.user.email }})
+                            </span>
+                            
+                           
+   
+
+
+                            <a href="{% url 'posts:create_post' %}" class="login my-posts">Create</a>
+                            <a href="{% url 'posts:my_posts' %}" class="login my-posts">My Posts</a>
+                            <div class="notification-wrapper">
+                                {% if bell_alert %}
+                                    <img src="{% static 'images/noti.png' %}" alt="Notification Bell" class="notification-bell" />
+                                {% endif %}
+                            
+                                <a href="{% url 'web:messages' %}" class="login my-posts notification-button">
+                                    {% if bell_alert %}
+                                        Notification
+                                    {% else %}
+                                         Notification 📩
+                                    {% endif %}
+                                </a>
+
+                                <a href="{% url 'posts:profile' %}" title="Your Profile" class="login">My Profile</a>
+                            </div>
+                            
+                            
+                            
+                            <a href="{% url 'users:logout' %}" class="login" style="background-color: red; color: white; margin-left: 10px;">
+    Logout
+</a>
+
+                           
+
+
+                           
+                            
+
+
+
+
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'users:sign_log' %}" class="login">Login</a>
+                    {% endif %}
+                </div>
+                
+                
+                
+                
+                
+                
+             
+                
+                <div id="hamburger-icon">
+                    <img
+                        src="{% static 'images/icons/hamburger.svg' %}"
+                        alt="Hamburger"
+                    />
+                </div>
+            </header>
+            <section class="spotlight">
+                <h3>Posts</h3>
+                <div class="all-posts">
+                    <div class="post-section">
+                        <ul class="posts">
+                            {% for post in instances %}
+                            <li>
+                                <a href="{% url 'web:post' id=post.id %}">
+                                    <div class="blog-image">
+                                        <img
+                                            src="{{post.featured_image.url}}"
+                                            alt="Blog"
+                                        />
+                                    </div>
+                                    <div class="details">
+                                        <div class="date">
+                                            <h4 class="name">{{post.author.name}}</h4>
+                                            <div class="round"></div>
+                                            <span> {{ post.published_date|date:"F d, Y" }} &nbsp;&nbsp; {{ post.published_date|date:"l" }} </span>
+
+
+                                        </div>
+                                        <h3 class="head">
+                                            {{post.title}}
+                                        </h3>
+                                        
+                                            <h6>Comments True</h6>
+                                        
+                                        <p class="description">
+                                       {{post.short_description}}
+                                        </p>
+                                    </div>
+                                </a>
+                                <div class="bottom">
+                                    {% for tag in post.categories.all %}
+                                        <a href="{% url 'web:index' %}" class="design {% cycle 'one' 'two' 'three' %} "> {{ tag.title }} </a>
+                                    {% endfor %}
+                                </div>
+                                
+                            </li>             
+                       {% endfor %}
+                        </ul>
+
+
+
+
+
+
+
+
+
+                       
+{% if instances.has_other_pages %}
+<div class="pagination">
+    {% if instances.has_previous %}
+    {% change_params instances.previous_page_number as prev_url %}
+    <a href="{{prev_url}}" class="prev">
+        <span class="arrow">
+            <img src="{% static 'images/icons/arrow.svg' %}" alt="Arrow" />
+        </span>
+        Previous
+    </a>
+    
+    {% else %}
+    <div class="prev disabled">
+        <span class="arrow">
+            <img
+                src="{% static 'images/icons/arrow.svg' %}"
+                alt="Arrow"
+            />
+        </span>
+        Previous
+    </div>
+    {% endif %}
+    
+
+
+
+    <div class="pages">
+        {% get_elided_page_range instances.paginator instances.number as page_range %}
+        {% for i in page_range %}
+            {% if instances.number == i %}
+                <span class="active"> {{ i }} </span>
+            {% else %}
+            {% change_params i as current_url %}
+                <a href="{{ current_url }}"> {{ i }} </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+    
+
+
+
+    {% if instances.has_next %}
+    {% change_params instances.next_page_number as next_url %}
+    <a href="{{next_url}}" class="next">
+        Next
+        <span class="arrow">
+            <img
+                src="{% static 'images/icons/arrow.svg' %}"
+                alt="Arrow"
+            />
+        </span>
+    </a>
+    {% else %}
+
+    <div  class="next disabled">
+        Next
+        <span class="arrow">
+            <img
+                src="{% static 'images/icons/arrow.svg' %}"
+                alt="Arrow"
+            />
+        </span>
+    </div>
+    {% endif %}
+
+</div>
+  
+{% endif %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                         
+                    </div>
+                    <div class="filter-section" id="hamburger-menu">
+                        <form action="">
+                            <input type="text" name="q" placeholder="Search anything..." />
+                            <p class="filter-head">Sort by</p>
+                            <div class="filter">
+                                <label class="radio">
+                                    <input
+                                        type="radio"
+                                        name="sort"
+                                        value="title-asc"
+                                    />
+                                    <span class="radio"></span>
+                                    <span class="label">Title ordered by Asc</span>
+                                </label>
+                                <label class="radio">
+                                    <input
+                                        type="radio"
+                                        name="sort"
+                                        value="title-desc"
+                                    />
+                                    <span class="radio"></span>
+                                    <span class="label">Title ordered by Desc</span>
+                                </label>
+                                <label class="radio">
+                                    <input
+                                        type="radio"
+                                        name="sort"
+                                        value="date-asc"
+                                    />
+                                    <span class="radio"></span>
+                                    <span class="label"
+                                        >Order By Date added Asc</span
+                                    >
+                                </label>
+                                <label class="radio">
+                                    <input
+                                        type="radio"
+                                        name="sort"
+                                        value="date-desc"
+                                    />
+                                    <span class="radio"></span>
+                                    <span class="label"
+                                        >Order By Date added Desc</span
+                                    >
+                                </label>
+                            </div>
+                            <p class="filter-head">Categories</p>
+                            <div class="filter">
+                                
+                                {% for category in categories %}
+                                <label class="checkbox">
+                                    <input type="checkbox" name="category" value="{{category.id}}" />
+                                    <span class="label"> {{category.title}} </span>
+                                </label>
+                                {% endfor %}
+                               
+                                
+                            </div>
+                            <p class="filter-head">Authors</p>
+                            <div class="filter">
+
+                                {%for author in authors %}
+                            
+                                <label class="checkbox">
+                                    <input type="checkbox" value="{{author.id}}" name="author" />
+                                    <span class="label">{{author.name}}</span>
+                                </label>
+                            
+                                {% endfor %}
+                             
+                                
+                            </div>
+                            <input type="submit" value="Filter" />
+                        </form>
+                    </div>
+                </div>
+            </section>
+            <div id="overlay"></div>
+            <div id="close">
+                <img src="{% static 'images/icons/close.svg' %}" alt="" />
+            </div>
+        </section>
+    </section>
+
+
+    </body>
+</html>

@@ -1,0 +1,230 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>My Reported Comments</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css" />
+    <link rel="stylesheet" href="{% static 'css/ck-editor.css' %}" type="text/css" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/icons/blog-logo.svg' %}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta property="og:image" content="" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    
+    <!-- Load jQuery and SweetAlert -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'js/ckeditor.js' %}"></script>
+    <script>
+        document.querySelector("form.ajaxx")?.addEventListener("submit", function(event) {
+            alert("Your post has been submitted successfully!");
+        });
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            padding: 30px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 40px;
+        }
+
+        .report-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .report-card p {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+
+        .admin-reply {
+            font-weight: bold;
+        }
+
+        .admin-reply .pending {
+            color: red;
+            font-style: italic;
+        }
+
+        .admin-reply .replied {
+            color: green;
+        }
+
+        .date {
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        header h1 a img {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        header h1 a:hover img {
+            transform: scale(1.1) rotate(-2deg);
+        }
+
+        a.login,
+        a.my-posts,
+        a.danger,
+        a.warning,
+        a.success,
+        a.view,
+        .pagination a,
+        .pagination .next,
+        .pagination .prev,
+        input[type="submit"],
+        button {
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+
+        a.login:hover,
+        a.my-posts:hover,
+        a.danger:hover,
+        a.warning:hover,
+        a.success:hover,
+        a.view:hover,
+        .pagination a:hover,
+        .pagination .next:hover,
+        .pagination .prev:hover,
+        input[type="submit"]:hover,
+        button:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <section id="edit-post-home">
+        <section class="wrapper">
+            <header>
+                <h1>
+                    <a href="{% url 'web:index' %}">
+                        <img src="{% static 'images/icons/blog-logo.svg' %}" alt="Logo" />
+                    </a>
+                </h1>
+                <div>
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.is_superuser %}
+                            <span style="color: black; font-weight: bold; margin-right: 10px;">
+                                Welcome, {{ request.user.username }} ({{ request.user.email }}) 👑
+                            </span>
+                            <a href="{% url 'users:logout' %}" class="login" style="background-color: red; color: white">Logout</a>
+                        {% else %}
+                            <span style="color: black; font-weight: bold; margin-right: 10px;">
+                                Welcome, {{ request.user.username }}❤️
+                            </span>
+                            <a href="{% url 'posts:my_posts' %}" class="login my-posts">My Posts</a>
+                            {% if reports %}
+    
+                            <a id="delete-all-reports-btn"
+                            class="login my-posts"
+                            style="padding: 10px 20px; background-color: red; color: white; border: none; border-radius: 8px;">
+                            🗑️ Delete All Reports
+                         </a>
+                         
+     
+{% endif %}
+
+                            <a href="{% url 'users:logout' %}" class="login" style="background-color: red; color: white">Logout</a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'users:sign_log' %}" class="login">Login</a>
+                    {% endif %}
+                </div>
+                <div id="hamburger-icon">
+                    <img src="{% static 'images/icons/hamburger.svg' %}" alt="Hamburger" />
+                </div>
+            </header>
+
+            <h2>📢 My Reported Comments</h2>
+            {% if reports %}
+                {% for report in reports %}
+                    <div class="report-card">
+                        {% if report.comment %}
+                            <p><strong>📚 Blog Post Title:</strong> {{ report.comment.post.title }}</p>
+                            <p><strong>📝 Comment:</strong> {{ report.comment.content }}</p>
+                            <p><strong>🧑‍💬 Comment Author:</strong> {{ report.comment.user.username }}</p>
+                        {% else %}
+                            <p><strong>📝 Comment:</strong> <em style="color: red;">(Comment no longer exists)</em></p>
+                            {% if report.post %}
+                                <p><strong>📚 Blog Post Title:</strong> {{ report.post.title }}</p>
+                            {% else %}
+                                <p><strong>📚 Blog Post Title:</strong> <em style="color: red;">(Post no longer exists)</em></p>
+                            {% endif %}
+                            <p><strong>🧑‍💬 Comment Author:</strong> <em style="color: red;">Unknown</em></p>
+                        {% endif %}
+
+                        <p><strong>📩 Your Message to Admin:</strong> {{ report.message }}</p>
+
+                        <p class="admin-reply">
+                            👮 Admin Reply:
+                            {% if report.admin_reply %}
+                                <span class="replied">{{ report.admin_reply }}</span>
+                            {% else %}
+                                <span class="pending">No reply yet</span>
+                            {% endif %}
+                        </p>
+
+                        <p class="date">🕒 Reported on: {{ report.created_at|date:"F j, Y, g:i a" }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center;">You haven’t reported any comments yet.</p>
+            {% endif %}
+        </section>
+    </section>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const deleteBtn = document.getElementById('delete-all-reports-btn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener("click", function(e) {
+                    e.preventDefault();
+    
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "This will delete all your reported  permanently!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, delete all!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const form = document.createElement('form');
+                            form.method = 'POST';
+                            form.action = "{% url 'web:delete_all_reports' %}";
+    
+                            const csrfToken = '{{ csrf_token }}';
+                            const csrfInput = document.createElement('input');
+                            csrfInput.type = 'hidden';
+                            csrfInput.name = 'csrfmiddlewaretoken';
+                            csrfInput.value = csrfToken;
+    
+                            form.appendChild(csrfInput);
+                            document.body.appendChild(form);
+                            form.submit();
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+    
+    
+</body>
+</html>

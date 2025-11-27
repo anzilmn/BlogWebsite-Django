@@ -1,0 +1,334 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Blog Post | Create your blog</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/icons/blog-logo.svg' %}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta property="og:image" content="" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+
+    <style>
+
+
+
+       
+            header h1 a img {
+                transition: transform 0.3s ease-in-out;
+            }
+            
+            header h1 a:hover img {
+                transform: scale(1.1) rotate(-2deg);
+            }
+            
+            /* Common button transition styling */
+button,
+a.login,
+.view-btn {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Hover Effects */
+.delete-btn:hover {
+    
+    transform: scale(1.05);
+}
+
+.view-btn:hover {
+   
+    transform: scale(1.05);
+}
+
+a.login:hover {
+    
+    color: white;
+    transform: scale(1.05);
+}
+
+            
+ 
+
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+    
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+    
+        /* Adjust the header and table layout */
+        h1 {
+            text-align: center;
+            margin-top: 0; /* Remove margin to bring the header closer to the top */
+        }
+    
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px; /* Bring the table closer to the top */
+        }
+    
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 15px; /* Increase padding for better readability */
+            text-align: left;
+            font-size: 14px; /* Adjust font size for clarity */
+        }
+    
+        th {
+            background-color: black !important;
+            color: white;
+            font-weight: bold;
+        }
+    
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    
+        .delete-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 7px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+    
+         
+    
+
+        .view-btn {
+            background-color: blue !important;
+            color: white !important;
+            padding: 7px 10px;
+            border-radius: 3px;
+            text-decoration: none;
+            margin-left: 5px;
+            display: inline-block;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .view-btn:hover {
+             
+            transform: scale(1.05);
+        }
+
+        /* Style for table rows */
+        tbody tr {
+            transition: all 0.3s ease;
+        }
+        
+        tbody tr:hover {
+            background-color: lime; /* subtle background color */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* pop effect */
+            transform: scale(1.01); /* slight zoom/pop */
+            cursor: pointer;
+            z-index: 1;
+            position: relative;
+        }
+             
+        table {
+    width: 100%; /* Make sure the table takes full width */
+    border-collapse: collapse; /* Remove double borders */
+}
+
+th, td {
+    padding: 12px 20px; /* Increase padding for better spacing */
+    text-align: left; /* Align text properly */
+}
+
+th {
+    background-color: #007bff; /* Blue background for headers */
+    color: white; /* White text for headers */
+}
+
+tbody tr {
+    transition: all 0.3s ease;
+}
+
+tbody tr:hover {
+   /* Light hover effect */
+    transform: scale(1.02); /* Slight zoom effect */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Make rows pop */
+}
+
+td:nth-child(1) { /* ID Column */
+    width: 10%;
+}
+
+td:nth-child(2) { /* Username Column */
+    width: 20%;
+}
+
+td:nth-child(3) { /* Post Count Column */
+    width: 15%;
+}
+
+td:nth-child(4) { /* Email Column */
+    width: 30%;
+}
+
+td:nth-child(5) { /* Action Column */
+    width: 25%;
+    text-align: center;
+}
+
+         
+    </style>
+    
+</head>
+
+<body>
+    <section id="home">
+        <section class="wrapper">
+            <header>
+                <h1>
+                    <a href="{% url 'web:index' %}">
+                        <img src="{% static 'images/icons/blog-logo.svg' %}" alt="Logo" />
+                    </a>
+                </h1>
+                <div>
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.is_superuser %}
+                            <span style="color: black; font-weight: bold; margin-right: 10px;">
+                                Welcome, {{ request.user.username }} ({{ request.user.email }}) 👑
+                            </span>
+                             
+                            <a href="{% url 'users:logout' %}" class="login" style="background-color: red; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold;">
+                                Logout
+                            </a>
+                        {% else %}
+                            <span style="color: black; font-weight: bold; margin-right: 10px;">
+                                Welcome, {{ request.user.username }}❤️
+                            </span>
+                            <a href="{% url 'posts:create_post' %}" class="login my-posts">Create</a>
+                            <a href="{% url 'posts:my_posts' %}" class="login my-posts">My Posts</a>
+                            <a href="{% url 'users:logout' %}" class="login" style="background-color: red; color: white">Logout</a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'users:sign_log' %}" class="login">Login</a>
+                    {% endif %}
+                </div>
+            </header>
+        </section>
+    </section>
+
+    <div class="container">
+      
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Post Count</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.post_count }}</td>
+                        <td>{{ user.email }}</td>
+                        
+                        <td>
+                            
+                            <button type="button" class="delete-btn" onclick="deleteUser({{ user.id }})">Delete</button>
+
+                                <a href="{% url 'posts:admin_user_posts' user.id %}" class="view-btn" style="padding: 7px 10px; border-radius: 3px; text-decoration: none; margin-left: 5px;">
+                                    View Posts
+                                </a>
+                          
+                            
+                            
+                        </td>
+                    </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="text-align: center;">No users found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Hidden form for deleting users -->
+        <form id="delete-form" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" id="delete-user-id">
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function deleteUser(userId) {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Once deleted, this user cannot be recovered!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!",
+            focusConfirm: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Send the DELETE request using Fetch API
+                fetch("{% url 'users:delete_user' %}", {
+                    method: "POST",  // POST for deletion
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",  // CSRF token for security
+                        "Content-Type": "application/json"  // Tell the server it's JSON
+                    },
+                    body: JSON.stringify({ user_id: userId })  // Sending the user ID in the body
+                })
+                .then(response => response.json())  // Parse the JSON response
+                .then(data => {
+                    if (data.status === "success") {
+                        // Show success message and keep it until the user clicks "OK"
+                        Swal.fire({
+                            title: "Deleted!",
+                            text: data.message,
+                            icon: "success",
+                            confirmButtonText: "OK",
+                            allowOutsideClick: false,  // Prevent clicking outside to close
+                            allowEscapeKey: false      // Disable escape key to close
+                        }).then(() => {
+                            // Reload the page after clicking "OK"
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire("Error!", data.message, "error");  // Error if deletion fails
+                    }
+                })
+                .catch(error => {
+                    Swal.fire("Error!", "Something went wrong!", "error");
+                });
+            }
+        });
+    }
+</script>
+
+    
+
+    
+    
+</body>
+</html>

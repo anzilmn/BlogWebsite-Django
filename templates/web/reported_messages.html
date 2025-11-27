@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Reported Comments | Admin Panel</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}" />
+    <link rel="icon" type="image/png" href="{% static 'images/icons/blog-logo.svg' %}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        td {
+            background-color: #f9f9f9;
+        }
+
+        h1 {
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+<section id="home">
+    <section class="wrapper">
+        <header>
+            <h1>
+                <a href="{% url 'web:index' %}">
+                    <img src="{% static 'images/icons/blog-logo.svg' %}" alt="Logo" />
+                </a>
+            </h1>
+            <div>
+                {% if request.user.is_authenticated and request.user.is_superuser %}
+                    <span style="color: black; font-weight: bold; margin-right: 10px;">
+                        Welcome, {{ request.user.username }} ({{ request.user.email }}) 👑
+                    </span>
+                    <a href="{% url 'users:users_list' %}" class="login" style="background-color: #6CBF7D; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold; margin-right: 10px;">Users</a>
+
+                    <a href="{% url 'users:logout' %}" class="login" style="background-color: red; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold;">Logout</a>
+                {% endif %}
+            </div>
+        </header>
+
+        <main>
+            <h1>🛡️ Reported Comment Messages</h1>
+            {% if reports %}
+            <table>
+                <tr>
+                    <th>User</th>
+                    <th>Comment</th>
+                    <th>Post</th>
+                    <th>Message</th>
+                    <th>Admin Reply</th>
+                    <th>Replied?</th>
+                    <th>Reported On</th>
+                    <th>Give reply</th>
+                </tr>
+                {% for report in reports %}
+                <tr>
+                    <td>{{ report.user.username }}</td>
+                    <td>{{ report.comment.content|default:"(Deleted)" }}</td>
+                    <td>
+                        {% if report.comment and report.comment.post %}
+                            {{ report.comment.post.title }}
+                        {% elif report.post %}
+                            {{ report.post.title }}
+                        {% else %}
+                            (Deleted)
+                        {% endif %}
+                    </td>
+                    <td>{{ report.message }}</td>
+                    <td style="color: {% if report.admin_reply %}green{% else %}red{% endif %}">
+                        {{ report.admin_reply|default:"No reply yet" }}
+                    </td>
+                    <td>
+  {% if report.is_admin_replied %}
+    ✅
+  {% else %}
+    ❌
+  {% endif %}
+</td>
+
+                    <td>{{ report.created_at|date:"F j, Y, g:i a" }}</td>
+                    <td>
+    {% if report.admin_reply %}
+        <span style="background-color: grey; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold; opacity: 0.6; cursor: not-allowed;">
+            ✅ Replied
+        </span>
+    {% else %}
+        <a href="{% url 'web:edit_report_message' report.id %}" class="login" style="background-color: #6CBF7D; color: white; padding: 10px 20px; border-radius: 10px; font-weight: bold; margin-right: 10px;">
+            Send Reply
+        </a>
+    {% endif %}
+</td>
+
+
+                </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+                <p>No reported comments yet.</p>
+            {% endif %}
+        </main>
+    </section>
+</section>
+</body>
+</html>

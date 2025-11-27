@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Access Suspended</title>
+    <link rel="icon" type="image/png" href="{% static 'images/icons/ban.png' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f7f7f7;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .suspended-box {
+            background-color: #fff;
+            padding: 40px 30px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-top: 5px solid #dc3545;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .suspended-box img {
+            width: 80px;
+            margin-bottom: 20px;
+        }
+
+        .suspended-box h2 {
+            color: #dc3545;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .suspended-box p {
+            color: #555;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .suspended-box a {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #0d6efd;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .suspended-box a:hover {
+            background-color: #084298;
+        }
+    </style>
+</head>
+<body>
+
+<div class="suspended-box">
+    <img src="{% static 'images/sus.jpg' %}" alt="Suspended Icon">
+    <h2>🚫 You Are Suspended</h2>
+    <p>{{ message }}</p>
+    <a href="{% url 'web:index' %}">← Back to Home</a>
+</div>
+
+</body>
+</html>

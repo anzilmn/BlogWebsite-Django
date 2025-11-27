@@ -1,0 +1,210 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>🚩 Report Comment | Blog</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css" />
+    <link rel="stylesheet" href="{% static 'css/ck-editor.css' %}" type="text/css" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/icons/blog-logo.svg' %}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- JS & SweetAlert -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'js/ckeditor.js' %}"></script>
+
+    <style>
+
+        header h1 a img {
+            transition: transform 0.3s ease-in-out;
+        }
+    
+        header h1 a:hover img {
+            transform: scale(1.1) rotate(-2deg);
+        }
+    
+        /* Hover transition for all important buttons & links */
+        a.login,
+        a.my-posts,
+        a.danger,
+        a.warning,
+        a.success,
+        a.view,
+        .pagination a,
+        .pagination .next,
+        .pagination .prev,
+        input[type="submit"],
+        button {
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+    
+        /* Hover effect (scale up + slightly dim) */
+        a.login:hover,
+        a.my-posts:hover,
+        a.danger:hover,
+        a.warning:hover,
+        a.success:hover,
+        a.view:hover,
+        .pagination a:hover,
+        .pagination .next:hover,
+        .pagination .prev:hover,
+        input[type="submit"]:hover,
+        button:hover {
+            transform: scale(1.05);
+           
+          
+        }
+
+
+
+        .report-container {
+            max-width: 600px;
+            margin: 60px auto;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .report-container h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            resize: vertical;
+        }
+
+        button {
+            background-color: #d9534f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #c9302c;
+        }
+    </style>
+</head>
+<body>
+<section id="edit-post-home">
+    <section class="wrapper">   
+        <header>
+            <h1>
+                <a href="{% url 'web:index' %}">
+                    <img src="{% static 'images/icons/blog-logo.svg' %}" alt="Logo" />
+                </a>
+            </h1>
+            <div>
+                {% if request.user.is_authenticated %}
+                    {% if request.user.is_superuser %}
+                        <span style="color: black; font-weight: bold; margin-right: 10px;">
+                            Welcome, {{ request.user.username }} ({{ request.user.email }}) 👑
+                        </span>
+                        <a href="{% url 'users:logout' %}" class="login"  style="background-color: red; color: white">Logout</a>
+                    {% else %}
+                        <span style="color: black; font-weight: bold; margin-right: 10px;">
+                            Welcome, {{ request.user.username }} ❤️
+                        </span>
+                        <a href="{% url 'posts:my_posts' %}" class="login my-posts">My Posts</a>
+                        <a href="{% url 'web:my_reports' %}" class="login my-posts">📬 My Reports</a>
+                        <a href="{% url 'users:logout' %}" class="login"  style="background-color: red; color: white">Logout</a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'users:sign_log' %}" class="login">Login</a>
+                {% endif %}
+            </div>
+            <div id="hamburger-icon">
+                <img src="{% static 'images/icons/hamburger.svg' %}" alt="Hamburger" />
+            </div>
+        </header>
+
+        <!-- 🚩 Report Comment Form -->
+        <div class="report-container">
+           
+
+            <h2>🚩 Report a Comment</h2>
+            <form id="reportForm" method="post">
+                {% csrf_token %}
+                <label for="message">Why are you reporting this comment?</label>
+                <textarea id="message" name="message" rows="6" placeholder="Type your reason here..." required></textarea>
+                <button type="button" onclick="confirmReport()">Send Report</button>
+            </form>
+        </div>
+    </section>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let reportForm = document.getElementById("reportForm");
+    let reportButton = document.querySelector("button[onclick='confirmReport()']");
+
+    if (reportForm && reportButton) {
+        reportButton.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            let messageField = document.getElementById("message");
+            let message = messageField.value.trim();
+
+            if (!message) {
+                Swal.fire({
+                    title: "Empty Message!",
+                    text: "Please provide a reason for reporting this comment.",
+                    icon: "warning",
+                    confirmButtonText: "OK"
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Do you want to report this comment?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#aaa",
+                confirmButtonText: "Yes, report it!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: "Reporting...",
+                        text: "Your report is being submitted.",
+                        icon: "success",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                    setTimeout(() => {
+                        reportForm.submit();
+                    }, 1500);
+                }
+            });
+        });
+    }
+});
+</script>
+
+</body>
+</html>

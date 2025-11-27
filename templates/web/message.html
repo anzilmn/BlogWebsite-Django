@@ -1,0 +1,184 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Blog Post | Create your blog</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css" />
+    <link rel="stylesheet" href="{% static 'css/ck-editor.css' %}" type="text/css" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/icons/blog-logo.svg' %}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta property="og:image" content="" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'js/ckeditor.js' %}"></script>
+
+    <script>
+        document.querySelector("form.ajaxx")?.addEventListener("submit", function(event) {
+            alert("Your post has been submitted successfully!");
+        });
+    </script>
+
+    <style>
+        header h1 a img {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        header h1 a:hover img {
+            transform: scale(1.1) rotate(-2deg);
+        }
+
+        a.login,
+        a.my-posts,
+        a.danger,
+        a.warning,
+        a.success,
+        a.view,
+        .pagination a,
+        .pagination .next,
+        .pagination .prev,
+        input[type="submit"],
+        button {
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+
+        a.login:hover,
+        a.my-posts:hover,
+        a.danger:hover,
+        a.warning:hover,
+        a.success:hover,
+        a.view:hover,
+        .pagination a:hover,
+        .pagination .next:hover,
+        .pagination .prev:hover,
+        input[type="submit"]:hover,
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .message-box {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .message-box strong {
+            color: #444;
+        }
+
+        .timestamp {
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        .deleted-comment {
+            font-style: italic;
+            color: red;
+        }
+
+        
+        
+    </style>
+</head>
+
+<body>
+    <section id="edit-post-home">
+        <section class="wrapper">
+            <header>
+                <h1>
+                    <a href="{% url 'web:index' %}">
+                        <img src="{% static 'images/icons/blog-logo.svg' %}" alt="Logo" />
+                    </a>
+                </h1>
+                <div>
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.is_superuser %}
+                            <span style="color: black; font-weight: bold; margin-right: 10px;">
+                                Welcome, {{ request.user.username }} ({{ request.user.email }}) 👑
+                            </span>
+                            <a href="{% url 'users:logout' %}" class="login" style="background-color: red; color: white">Logout</a>
+                        {% else %}
+                            <span style="color: black; font-weight: bold; margin-right: 10px;">
+                                Welcome, {{ request.user.username }}❤️
+                            </span>
+                            <a href="{% url 'posts:my_posts' %}" class="login my-posts">My Posts</a>
+                            {% if notifications %}
+    <form method="POST" action="{% url 'web:delete_all_notifications' %}" id="delete-all-form" style="display: inline;">
+        {% csrf_token %}
+        <a type="button" id="delete-all-btn" class="login my-posts">🗑️ Delete All Notifications</a>
+    </form>
+{% endif %}
+
+                            <a href="{% url 'users:logout' %}" class="login" style="background-color: red; color: white">Logout</a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'users:sign_log' %}" class="login">Login</a>
+                    {% endif %}
+                </div>
+                <div id="hamburger-icon">
+                    <img src="{% static 'images/icons/hamburger.svg' %}" alt="Hamburger" />
+                </div>
+            </header>
+
+            <!-- 🔔 Messages Section -->
+            <h2>📨 Messages</h2>
+
+            <br> <br>
+            {% if notifications %}
+                <form method="POST" action="{% url 'web:delete_all_notifications' %}" id="delete-all-form">
+                    {% csrf_token %}
+                    
+                </form>
+
+                {% for note in notifications %}
+                    <div class="message-box">
+                        <p><strong>{{ note.commenter.username }}</strong> commented on your post: <strong>{{ note.post.title }}</strong></p>
+
+                        {% if note.comment %}
+                            <p>💬 <em>{{ note.comment.content }}</em></p>
+                        {% else %}
+                            <p class="deleted-comment">💬 (Comment has been deleted)</p>
+                        {% endif %}
+
+                        <p class="timestamp">🕒 {{ note.created_at|date:"F j, Y, g:i a" }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align:center;">No messages yet!</p>
+            {% endif %}
+        </section>
+    </section>
+
+    <script>
+        document.getElementById('delete-all-btn').addEventListener('click', function () {
+            Swal.fire({
+                title: 'Delete all notifications?',
+                text: "This will remove all your message notifications permanently.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#aaa',
+                confirmButtonText: 'Yes, delete all!',
+                background: '#fff',
+                customClass: { popup: 'rounded-xl' }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-all-form').submit();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

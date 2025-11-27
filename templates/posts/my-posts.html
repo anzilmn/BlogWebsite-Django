@@ -1,0 +1,452 @@
+{% load static %}
+{% load paginator_tags %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        
+        <meta charset="UTF-8" />
+        <title>Blog Post | Create your blog</title>
+        <link
+            rel="stylesheet"
+            href="{% static 'css/style.css' %}"
+            type="text/css"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="{% static 'images/icons/blog-logo.svg' %}"
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta property="og:image" content="" />
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+        <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+        <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="{% static 'js/script.js' %}"></script>
+             <style>
+        /* General Button Styling */
+/* Smooth transition for all buttons and links with class 'login', 'view', 'danger', 'warning', etc. */
+
+header h1 a img {
+    transition: transform 0.3s ease-in-out;
+}
+
+header h1 a:hover img {
+    transform: scale(1.1) rotate(-2deg);
+}
+
+
+
+
+
+.login,
+.my-posts,
+.view,
+.danger,
+.warning,
+.success,
+.pagination a,
+.pagination .prev,
+.pagination .next {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.post {
+ 
+    transition: all 0.3s ease-in-out;
+}
+
+.post:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+
+
+/* Hover effects */
+.login:hover,
+.my-posts:hover {
+    
+    color: white;
+    transform: scale(1.05);
+}
+
+.view:hover {
+    background-color: #28a745;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.danger:hover {
+    background-color: #dc3545;
+    color: white;
+    transform: scale(1.05);
+}
+
+.warning:hover {
+    background-color: #ffc107;
+    color: black;
+    transform: scale(1.05);
+}
+
+.success:hover {
+    background-color: #198754;
+    color: white;
+    transform: scale(1.05);
+}
+
+.pagination a:hover,
+.pagination .prev:hover,
+.pagination .next:hover {
+  
+  
+    transform: scale(1.05);
+}
+
+/* Pagination Transition Styling */
+.pages a, .pages span.active {
+    transition: all 0.3s ease-in-out;
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.pages a:hover {
+    background-color: #3085d6;
+    color: white;
+    transform: scale(1.1);
+}
+
+.pages span.active {
+    background-color: #d33;
+    color: white;
+    transform: scale(1.1);
+}
+
+       
+
+        
+    </style>
+    </head>
+    <body>
+        <section id="my-posts-home">
+            <section class="wrapper">                
+                <header>
+                    <h1>
+                        <a href="{% url 'web:index' %}">
+                            <img
+                                src="{% static 'images/icons/blog-logo.svg' %}"
+                                alt="Logo"
+                            />
+                        </a>
+                    </h1>
+                    <div>
+                        {% if request.user.is_authenticated %}
+                            {% if request.user.is_superuser %}
+                                <span style="color: black; font-weight: bold; margin-right: 10px;">
+                                    Welcome, {{ request.user.username }} ({{ request.user.email }}) 👑
+                                </span>
+                                <a href="{% url 'users:logout' %}" class="login"  style="background-color: red; color: white">Logout</a>
+                            {% else %}
+                                <span style="color: black; font-weight: bold; margin-right: 10px;">
+                                    Welcome, {{ request.user.username }}❤️
+                                </span>
+                                <a href="{% url 'posts:create_post' %}" class="login my-posts">Create</a>
+                                <a href="{% url 'posts:my_posts' %}" class="login my-posts">My Posts</a>
+                                <a href="{% url 'web:my_reports' %}" class="login my-posts">📬 My Reports</a>
+                                <a href="{% url 'users:logout' %}" class="login"  style="background-color: red; color: white">Logout</a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'users:sign_log' %}" class="login">Login</a>
+                        {% endif %}
+                    </div>
+                    
+                    <div id="hamburger-icon">
+                        <img
+                            src="{% static 'images/icons/hamburger.svg' %}"
+                            alt="Hamburger"
+                        />
+                    </div>
+                </header>
+                <section class="spotlight">
+                    <h3>
+                        {{title}}
+                    </h3>
+                    <ul class="posts">
+                        
+                        {% for instance in instances %}
+                        <li class="post">
+                            <div class="top">
+                                <h5 class="title">
+                                    {{instance.title}}
+                                </h5>
+                                <div class="buttons">
+                                    <a 
+    href="{% url 'posts:delete_post' id=instance.id %}" 
+    id="delete_postt"
+    class="danger"
+    data-text="Are you sure you want to remove this post? You can't undo this action." 
+    data-title="Confirm Delete!"
+    title="Delete!"
+>
+    <img src="{% static 'images/icons/delete.svg' %}" alt="Delete" />
+</a>
+
+
+<a href="{% url 'posts:edit_post' id=instance.id %}?page={{ request.GET.page }}" class="warning">
+    <img src="{% static 'images/icons/pencil.svg' %}" alt="Edit" />
+</a>
+
+
+                                    
+                                    <a 
+    href="{% url 'posts:draft_post' id=instance.id %}" 
+    id="draft_postt"
+    class="{% if instance.is_draft %} success {% else %} danger {% endif %}"
+    data-draft="{% if instance.is_draft %}true{% else %}false{% endif %}"  
+    title="Draft"
+>
+    <img src="{% static 'images/icons/sheet.svg' %}" alt="Edit" />
+</a>
+
+                                
+                                </div>
+                            </div>
+                            <p class="description">
+                                {{instance.short_description}}
+                            </p>
+                            <div class="bottom">
+                                <a href="{% url 'web:post' id=instance.id %}" class="view">
+                                    View
+                                    <span>
+                                        <img src="{% static 'images/icons/up-arrow.svg' %}" alt="Arrow">
+                                    </span>
+                                </a>
+                                <p class="date">
+                                    {{instance.published_date}}
+                                </p>
+
+
+                                <p style="margin-top: 5px;">
+                                    👁️ Read by {{ instance.read_count }} user{{ instance.read_count|pluralize }}
+                                </p>
+
+                            </div>
+                        </li>
+                        
+                        {% endfor %}
+                        
+                    </ul>
+
+                                        
+{% if instances.has_other_pages %}
+<div class="pagination">
+    {% if instances.has_previous %}
+    {% change_params instances.previous_page_number as prev_url %}
+    <a href="{{prev_url}}" class="prev">
+        <span class="arrow">
+            <img src="{% static 'images/icons/arrow.svg' %}" alt="Arrow" />
+        </span>
+        Previous
+    </a>
+    
+    {% else %}
+    <div class="prev disabled">
+        <span class="arrow">
+            <img
+                src="{% static 'images/icons/arrow.svg' %}"
+                alt="Arrow"
+            />
+        </span>
+        Previous
+    </div>
+    {% endif %}
+    
+
+
+
+    <div class="pages">
+        {% get_elided_page_range instances.paginator instances.number as page_range %}
+        {% for i in page_range %}
+            {% if instances.number == i %}
+                <span class="active"> {{ i }} </span>
+            {% else %}
+            {% change_params i as current_url %}
+                <a href="{{ current_url }}"> {{ i }} </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+    
+
+
+
+    {% if instances.has_next %}
+    {% change_params instances.next_page_number as next_url %}
+    <a href="{{next_url}}" class="next">
+        Next
+        <span class="arrow">
+            <img
+                src="{% static 'images/icons/arrow.svg' %}"
+                alt="Arrow"
+            />
+        </span>
+    </a>
+    {% else %}
+
+    <div  class="next disabled">
+        Next
+        <span class="arrow">
+            <img
+                src="{% static 'images/icons/arrow.svg' %}"
+                alt="Arrow"
+            />
+        </span>
+    </div>
+    {% endif %}
+
+</div>
+  
+{% endif %}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll("#draft_postt").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault(); // Prevent default link behavior
+                this.focus(); // Ensure the button is focused
+
+                let draftUrl = this.getAttribute("href"); // Get the draft toggle URL
+                let isDraft = this.getAttribute("data-draft") === "true"; // Check if post is draft
+
+                // ✅ Set dynamic messages based on draft status
+                let title = isDraft ? "Publish Post?" : "Move to Draft?";
+                let text = isDraft 
+                    ? "Do you want to publish this post?" 
+                    : "Do you want to move this post to draft?";
+                let confirmText = isDraft ? "Yes, publish it!" : "Yes, move to draft!";
+                let successText = isDraft ? "Post published successfully!" : "Post moved to draft successfully!";
+
+                setTimeout(() => {
+                    if (document.activeElement === this) { // Ensure button is still focused
+                        Swal.fire({
+                            title: title,
+                            text: text,
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#28a745", // Green for success
+                            cancelButtonColor: "#d33",
+                            confirmButtonText: confirmText // ✅ Dynamic button text
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                fetch(draftUrl, {
+                                    method: "GET",
+                                    headers: { 
+                                        "X-Requested-With": "XMLHttpRequest" // Ensure Django detects AJAX
+                                    }
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error("Network response was not ok.");
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.status === "success") {
+                                        Swal.fire({
+                                            title: "Updated!",
+                                            text: successText, // ✅ Show correct success message
+                                            icon: "success",
+                                            confirmButtonText: "OK"
+                                        }).then(() => {
+                                            location.reload(); // Reload the same page
+                                        });
+                                    } else {
+                                        throw new Error(data.message || "An error occurred.");
+                                    }
+                                })
+                                .catch(error => {
+                                    Swal.fire("Error!", error.message, "error");
+                                });
+                            }
+                        });
+                    }
+                }, 100);
+            });
+        });
+    });
+</script>
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll("#delete_postt").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault(); // Prevent default link behavior
+                this.focus(); // Ensure the button is focused
+    
+                let deleteUrl = this.getAttribute("href"); // Get the delete URL
+                let title = this.getAttribute("data-title") || "Confirm Delete!";
+                let text = this.getAttribute("data-text") || "Are you sure you want to remove this post?";
+
+                setTimeout(() => {
+                    if (document.activeElement === this) { // Ensure button is still focused
+                        Swal.fire({
+                            title: title,
+                            text: text,
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#d33", // Red for delete
+                            cancelButtonColor: "#3085d6",
+                            confirmButtonText: "Yes, delete it!" // ✅ Corrected button text
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                fetch(deleteUrl, {
+                                    method: "GET",
+                                    headers: { 
+                                        "X-Requested-With": "XMLHttpRequest" // Ensure Django detects AJAX
+                                    }
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error("Network response was not ok.");
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.status === "success") {
+                                        Swal.fire({
+                                            title: "Deleted!",
+                                            text: data.message,
+                                            icon: "success",
+                                            confirmButtonText: "OK"
+                                        }).then(() => {
+                                            location.reload(); // Reload the same page
+                                        });
+                                    } else {
+                                        throw new Error(data.message || "An error occurred.");
+                                    }
+                                })
+                                .catch(error => {
+                                    Swal.fire("Error!", error.message, "error");
+                                });
+                            }
+                        });
+                    }
+                }, 100);
+            });
+        });
+    });
+</script>
+
+
+
+                </section>
+            </section>
+        </section>
+
+    </body>
+</html>

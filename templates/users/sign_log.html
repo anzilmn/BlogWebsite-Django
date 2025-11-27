@@ -1,0 +1,380 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Post | Create your Account</title>
+    <link
+    rel="icon"
+    type="image/png"
+    sizes="32x32"
+    href="{% static 'images/icons/blog-logo.svg' %}" 
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+
+    <style>
+        
+   /* Reset default styles */
+*,
+*::after,
+*::before {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* General Styles */
+body {
+    font-family: "Roboto", sans-serif;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8efef;
+    cursor: default;
+    background-image: url("{% static 'images/back.jpg' %}");
+    background-size: cover; 
+    background-position: top; 
+    background-repeat: no-repeat; 
+    background-attachment: fixed; 
+}
+
+/* Form Container */
+.form-container {
+    height: 520px; /* Slightly increased height */
+    width: 650px; /* Slightly increased width */
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    background-color: white;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1); /* Added subtle shadow */
+}
+
+/* Login & Signup Forms */
+.login-container, .signup-container {
+    width: 50%;
+    padding: 40px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 15px;
+    transition: all 500ms ease;
+}
+
+.signup-container {
+    transform: scale(0);
+}
+
+/* Titles & Descriptions */
+.title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #046586;
+}
+
+.desc {
+    font-size: 14px;
+    color: #555;
+}
+
+/* Input Fields */
+.input-container {
+    margin-top: 10px;
+    width: 100%;
+    height: 45px;
+    border-radius: 5px;
+    border: 2px solid #d6e0eb;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    transition: border-color 0.3s ease;
+}
+
+.input-container input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    padding-left: 5px;
+    outline: none;
+    font-family: "Roboto", sans-serif;
+    font-size: 14px;
+}
+
+.input-container:focus-within {
+    border-color: #046586;
+}
+
+/* Error Messages */
+.messages {
+    list-style: none;
+    padding: 0;
+    margin: 5px 0;
+}
+
+.messages li {
+    color: red;
+    font-size: 14px;
+    padding: 5px;
+    background-color: #ffe6e6;
+    border-left: 5px solid red;
+    margin-top: 5px;
+    border-radius: 5px;
+}
+
+/* Account Controls (Buttons & Links) */
+.account-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.account-controls a {
+    text-decoration: none;
+    color: #5293aa;
+    font-size: 12px;
+    transition: color 0.3s ease;
+}
+
+.account-controls a:hover {
+    color: #034b62;
+}
+
+/* Button Styling */
+.account-controls button {
+    width: 80px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border: none;
+    background: #046586;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 300ms ease, background-color 300ms ease;
+    box-shadow: 0 3px 10px -5px #73aabb;
+}
+
+.account-controls button:hover {
+    transform: scale(1.1);
+    background: #034b62;
+}
+
+/* Placeholder Banner */
+.placeholder-banner {
+    width: 50%;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    transition: all 500ms ease;
+    z-index: 4;
+}
+
+.banner {
+    width: 100%;
+    height: inherit;
+    object-fit: cover;
+    transition: transform 500ms ease;
+}
+
+/* Signup Text */
+.signup-text {
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+#signup-form-toggler, #login-form-toggler {
+    cursor: pointer;
+    text-decoration: none;
+    color: #046586;
+    transition: border-bottom 0.3s ease;
+}
+
+#signup-form-toggler:hover, #login-form-toggler:hover {
+    border-bottom: 1px solid;
+}
+
+/* Space out elements for better layout */
+.input-container + .input-container {
+    margin-top: 12px;
+}
+
+.account-controls {
+    margin-top: 15px;
+}
+
+.messages {
+    margin-bottom: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 700px) {
+    .form-container {
+        width: 90%;
+        height: auto;
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .login-container, .signup-container {
+        width: 100%;
+        padding: 20px;
+    }
+
+    .placeholder-banner {
+        display: none;
+    }
+}
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.success-message {
+    color: green;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.input-container {
+    margin-top: 10px;
+    width: 100%;
+    height: 40px;
+    border-radius: 5px;
+    border: 2px solid #d6e0eb;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+}
+
+button {
+    margin-top: 10px;
+}
+
+
+    </style>
+</head>
+
+<body>
+    
+    <div class="form-container">
+        <!-- Login Form -->
+        <div class="login-container" id="login-container">
+            <h1 class="title">Log In</h1>
+            <p class="desc">Login to your account to access features</p>
+            <form action="{% url 'users:sign_log' %}" method="POST" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="action" value="login">  
+    
+                <div class="input-container">
+                    <input type="text" name="username" placeholder="Enter Your Username" required>
+                </div>
+                <div class="input-container">
+                    <input type="password" name="password" placeholder="Enter Your Password" required>
+                </div>
+    
+                <!-- Show only login errors -->
+                {% for error in login_errors %}
+                    <p class="error-message">{{ error }}</p>
+                {% endfor %}
+    
+                <!-- Show signup success message in login form -->
+                {% if success_message %}
+                    <p class="success-message">{{ success_message }}</p>
+                {% endif %}
+    
+                <div class="account-controls">
+                    <a href="#">Forgot Password?</a>
+                    <button type="submit">Next <i class="fas fa-solid fa-angle-right"></i></button>
+                </div>
+            </form>
+            <span class="signup-text">Don't have an account? <a id="signup-form-toggler">Sign up</a></span>
+        </div>
+    
+        <div class="placeholder-banner" id="banner">
+            <img src="{% static 'images/bloooog.jpg' %}" alt="" class="banner">
+        </div>
+    
+        <!-- Signup Form -->
+        <div class="signup-container" id="signup-container">
+            <h1 class="title">Signup</h1>
+            <p class="desc">Create your account to get started</p>
+            <form action="{% url 'users:sign_log' %}" method="POST" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="action" value="signup">  
+    
+                <div class="input-container">
+                    <input type="text" name="username" placeholder="Enter Username" required>
+                </div>
+                <div class="input-container">
+                    <input type="email" name="email" placeholder="Enter Your Email" required>
+                </div>
+                <div class="input-container">
+                    <input type="password" name="password" placeholder="Enter Your Password (Min. 8 chars)" required>
+                </div>
+                <div class="input-container">
+                    <input type="password" name="confirm_password" placeholder="Confirm Your Password" required>
+                </div>
+    
+                <!-- Show only signup errors -->
+                {% for error in signup_errors %}
+                    <p class="error-message">{{ error }}</p>
+                {% endfor %}
+    
+                <div class="account-controls">
+                    <button type="submit">Next <i class="fas fa-solid fa-angle-right"></i></button>
+                </div>
+            </form>
+            <span class="signup-text">Already have an account? <a id="login-form-toggler">Login here</a></span>
+        </div>
+    </div>
+    
+    <script>
+        const banner = document.getElementById("banner");
+        const loginContainer = document.getElementById("login-container");
+        const signupContainer = document.getElementById("signup-container");
+        const loginToggle = document.getElementById("login-form-toggler");
+        const signupToggle = document.getElementById("signup-form-toggler");
+    
+        // Function to switch to signup form
+        function showSignupForm() {
+            banner.style.transform = "translateX(-100%)";
+            loginContainer.style.transform = "scale(0)";
+            signupContainer.style.transform = "scale(1)";
+        }
+    
+        // Function to switch to login form
+        function showLoginForm() {
+            banner.style.transform = "translateX(0%)";
+            signupContainer.style.transform = "scale(0)";
+            loginContainer.style.transform = "scale(1)";
+        }
+    
+        // Add event listeners for toggling forms
+        signupToggle.addEventListener("click", showSignupForm);
+        loginToggle.addEventListener("click", showLoginForm);
+    
+        // Keep the correct form open after a page reload
+        document.addEventListener("DOMContentLoaded", function () {
+            let formState = "{{ form_state }}";  // Get form state from Django
+    
+            if (formState === "signup") {
+                showSignupForm();
+            } else {
+                showLoginForm();
+            }
+        });
+    </script>
+    
+</body>
+</html>
