@@ -44,7 +44,7 @@ def create_post(request):
     # Get or create profile
     profile = getattr(request.user, 'profile', None)
     if profile is None:
-        from users.models import Profile
+        from posts.models import Profile
         profile = Profile.objects.create(user=request.user)
 
     # 🛑 Check if user is suspended
